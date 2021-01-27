@@ -1,68 +1,71 @@
-import asyncio as aio
-from json.decoder import JSONDecodeError
-import time
-# import pygame
-import socket
-# from pygame.locals import *
-from aioconsole import ainput
-import json
-import sys
 import concurrent.futures
-from simple_term_menu import TerminalMenu
+import io as aio
+import json
+import queue
+import socket
+import sys
+import threading
+import numpy as np
+import time
+from json.decoder import JSONDecodeError
 
+import pygame
+from aioconsole import ainput
+from pygame.locals import *
+from simple_term_menu import TerminalMenu
 
 TCP_PORT = 5000
 UDP_PORT = 5000
 
 
-async def tcp_sock_read_all(sock: socket.socket):
-    loop = aio.get_running_loop()
-    line = bytearray()
-    while True:
-        buffer = await loop.sock_recv(sock, 1024)
-        if not buffer:
-            return line
-        line += buffer
+# def tcp_sock_read_all(sock: socket.socket):
+#     loop = aio.get_running_loop()
+#     line = bytearray()
+#      while True:
+#           buffer = loop.sock_recv(sock, 1024)
+#            if not buffer:
+#                 return line
+#             line += buffer
 
 
-def sock_recvfrom(loop, sock, n_bytes, fut=None, registed=False):
-    """
-    CREDITS TO https://pysheeet-kr.readthedocs.io/ko/latest/notes/python-asyncio.html#simple-asyncio-udp-echo-server 
-    """
-    fd = sock.fileno()
-    if fut is None:
-        fut = loop.create_future()
-    if registed:
-        loop.remove_reader(fd)
+# def sock_recvfrom(loop, sock, n_bytes, fut=None, registed=False):
+#     """
+#     CREDITS TO https://pysheeet-kr.readthedocs.io/ko/latest/notes/python-io.html#simple-io-udp-echo-server
+#     """
+#     fd = sock.fileno()
+#     if fut is None:
+#         fut = loop.create_future()
+#     if registed:
+#         loop.remove_reader(fd)
 
-    try:
-        data, addr = sock.recvfrom(n_bytes)
-    except (BlockingIOError, InterruptedError):
-        loop.add_reader(fd, sock_recvfrom, loop, sock, n_bytes, fut, True)
-    else:
-        fut.set_result((data, addr))
-    return fut
+#     try:
+#         data, addr = sock.recvfrom(n_bytes)
+#     except (BlockingIOError, InterruptedError):
+#         loop.add_reader(fd, sock_recvfrom, loop, sock, n_bytes, fut, True)
+#     else:
+#         fut.set_result((data, addr))
+#     return fut
 
 
-def sock_sendto(loop, sock, data, addr, fut=None, registed=False):
-    """
-    CREDITS TO https://pysheeet-kr.readthedocs.io/ko/latest/notes/python-asyncio.html#simple-asyncio-udp-echo-server 
-    """
-    fd = sock.fileno()
-    if fut is None:
-        fut = loop.create_future()
-    if registed:
-        loop.remove_writer(fd)
-    if not data:
-        return
+# def sock_sendto(loop, sock, data, addr, fut=None, registed=False):
+#     """
+#     CREDITS TO https://pysheeet-kr.readthedocs.io/ko/latest/notes/python-io.html#simple-io-udp-echo-server
+#     """
+#     fd = sock.fileno()
+#     if fut is None:
+#         fut = loop.create_future()
+#     if registed:
+#         loop.remove_writer(fd)
+#     if not data:
+#         return
 
-    try:
-        n = sock.sendto(data, addr)
-    except (BlockingIOError, InterruptedError):
-        loop.add_writer(fd, sock_sendto, loop, sock, data, addr, fut, True)
-    else:
-        fut.set_result(n)
-    return fut
+#     try:
+#         n = sock.sendto(data, addr)
+#     except (BlockingIOError, InterruptedError):
+#         loop.add_writer(fd, sock_sendto, loop, sock, data, addr, fut, True)
+#     else:
+#         fut.set_result(n)
+#     return fut
 
 
 # def handle_message(message):
@@ -78,112 +81,101 @@ def sock_sendto(loop, sock, data, addr, fut=None, registed=False):
 #         line = get_line()
 #         handle_message(line)
 
+class Board:
+    EMPTY_CELL = ' '
+    P1_CELL = 'R'
+    P2_CELL = 'Y'
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.grid = np.full((6, 7), Board.EMPTY_CELL)
+
+
 class Game:
+    def init_game(self, player1, player2):
+        self.board = Board()
+        self.player1 = player1
+        self.player2 = player2
+        self.turn = player1
+
     def __init__(self, name: str, ip: str) -> None:
         super().__init__()
         self.ip = ip
         self.name = name
-        self.player_accepted = aio.Event()
-        # self.players = dict()
         self.players = {
-            'buse': 'kababakakabak',
+            'buse': {'NAME': 'buse', 'IP': other_ip},
             'mehdi': 'safsar'
         }
 
-    async def handle_udp_message(self, line: str):
+    def handle_udp_message(self, line: str):
+        print(repr(line))
         packet = json.loads(line)
         if packet["TYPE"] == "DISCOVER":
             self.players[packet['NAME']] = {"IP": packet["SRC_IP"], 'NAME': packet['NAME']}
-            await self.respond(packet["SRC_IP"])
+            self.send_respond(packet["SRC_IP"])
 
         elif packet["TYPE"] == "RESPOND":
             self.players[packet['NAME']] = {"IP": packet['SRC_IP'], 'NAME': packet['NAME']}
 
-    async def handle_tcp_message(self, line: str):
+    def handle_tcp_message(self, line: str):
+        print(repr(line))
         packet = json.loads(line)
         if packet["TYPE"] == "PLAY_REQUEST":
-            is_accepted = self.choose_yes_no(packet) # 2s, 10s, 
+            is_accepted = self.choose_yes_no(packet)  # 2s, 10s,
+            self.send_play_response(packet['SRC_IP'], is_accepted)
             if is_accepted:
-                self.player_accepted.set()
-            else:
-                self.player_refused.set()
+                player1 = packet['NAME']
+                player2 = self.name
+                self.init_game(player1=player1, player2=player2)
 
-            await self.send_play_response(packet['SRC_IP'], is_accepted)
+        if packet["TYPE"] == "PLAY_RESPONSE":
+            if packet["PAYLOAD"]:
+                player1 = self.name
+                player2 = packet['NAME']
+                self.init_game(player1=player1, player2=player2)
 
-    async def send_udp_message(self, packet: dict, ip: str):
-        loop = aio.get_running_loop()
-
+    def send_udp_message(self, packet: dict, ip: str):
         packet['SRC_IP'] = self.ip
         packet['DST_IP'] = '<broadcast>'
         packet['NAME'] = self.name
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             # sock.bind(('',0))
-            sock.setblocking(False)
+
             if ip == '<broadcast>':
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-            await sock_sendto(loop, sock, json.dumps(packet).encode('utf-8'), (ip, UDP_PORT))
+            packet = json.dumps(packet).encode('utf-8')
+            sock.sendto(packet, (ip, UDP_PORT))
 
-    async def send_tcp_message(self, packet: dict, ip: str):
-        loop = aio.get_running_loop()
-
+    def send_tcp_message(self, packet: dict, ip: str):
         packet['SRC_IP'] = self.ip
         packet['DST_IP'] = ip
         packet['NAME'] = self.name
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.setblocking(False)
-
-            await loop.sock_connect(sock, (ip, TCP_PORT))
+            sock.connect((ip, TCP_PORT))
 
             packet = json.dumps(packet) + '\n'
             packet = packet.encode('utf-8')
 
-            await loop.sock_sendall(sock, packet)
+            sock.sendall(packet)
 
-    async def send_respond(self, dst_ip):
+    def send_respond(self, dst_ip):
         respond_packet = {"TYPE": "RESPOND", "PAYLOAD": ""}
-        await self.send_udp_message(respond_packet, dst_ip)
+        self.send_udp_message(respond_packet, dst_ip)
 
-    async def send_discover(self):
+    def send_discover(self):
         discover_packet = {"TYPE": "DISCOVER", "PAYLOAD": ""}
-        await self.send_udp_message(discover_packet, '<broadcast>')
+        self.send_udp_message(discover_packet, '<broadcast>')
 
-    async def send_play_response(self, dst_ip, answer):
+    def send_play_response(self, dst_ip, answer):
         play_response_packet = {"TYPE": "PLAY_RESPONSE", "PAYLOAD": answer}
-        await self.send_tcp_message(play_response_packet, dst_ip)
+        self.send_tcp_message(play_response_packet, dst_ip)
 
-    async def send_play_request(self, dst_ip):
+    def send_play_request(self, dst_ip):
         play_request_packet = {"TYPE": "PLAY_REQUEST", "PAYLOAD": ""}
-        await self.send_tcp_message(play_request_packet, dst_ip)
-
-    async def udp_listen(self):
-        loop = aio.get_running_loop()
-
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.setblocking(False)
-            sock.bind(('', UDP_PORT))
-
-            while True:
-                line, _ = await sock_recvfrom(loop, sock, 1000)
-                line = line.decode('utf-8').strip()
-                await self.handle_udp_message(line)
-
-    async def tcp_listen(self):
-        loop = aio.get_running_loop()
-
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.setblocking(False)
-            sock.bind((self.ip, TCP_PORT))
-            sock.listen()
-
-            while True:
-                client, _ = await loop.sock_accept(sock)
-                with client:
-                    line = await tcp_sock_read_all(client)
-                    line = line.decode('utf-8').strip()
-                    await self.handle_tcp_message(line)
+        self.send_tcp_message(play_request_packet, dst_ip)
 
     def list_players(self):
         for player_name, player in self.players.items():
@@ -195,6 +187,7 @@ class Game:
         player_menu = TerminalMenu(choices, title='Choose player')
         chosen_player_ix = player_menu.show()
         chosen_player = self.players[choices[chosen_player_ix]]
+        print('chosen player', chosen_player)
         return chosen_player
 
     def choose_yes_no(self, player: dict):
@@ -203,53 +196,103 @@ class Game:
         choice_menu = TerminalMenu(choices, title=f'Would you like to play with {player["NAME"]}?')
         return choices[choice_menu.show()] == 'yes'
 
-    async def blabla(self):
-        i = 0
-        while True:
-            await aio.sleep(0.1)
-            i += 1
-            print(i)
+    def handle_command(self, command):
+        if command == 'list':
+            self.list_players()
+        elif command == 'play':
+            player = self.choose_player() 
+            self.send_play_request(player["IP"])
 
-    async def main(self):
-        aio.create_task(self.udp_listen())
-        aio.create_task(self.tcp_listen())
-        # aio.create_task(self.blabla())
-
+    def main(self):
         for _ in range(3):
-            await self.discover()
+            self.send_discover()
 
-        # loop = aio.get_running_loop()
-        # executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         while True:
-            command = await ainput('>>> ')
-            if command == 'list':
-                self.list_players()
-            if command == 'play':
-                player = self.choose_player()  # becareful, blocking
-                await self.send_play_request(player["IP"])
+            # input
+            while not input_q.empty():
+                command = input_q.get()
+                self.handle_command(command)
+                input_q.task_done()
 
-                await aio.wait([self.player_accepted.wait(), self.player_refused.wait()], return_when=aio.FIRST_COMPLETED)
-                is_accepted = self.player_accepted.is_set()
-                self.player_accepted.clear()
-                self.player_refused.clear()
+            # tcp
+            while not tcp_q.empty():
+                tcp_msg = tcp_q.get()
+                self.handle_tcp_message(tcp_msg)
+                tcp_q.task_done()
 
-                if not is_accepted:
-                    print('go melih bulu yourself')
-                else:
-                    print('all right lets play')
-
-        # at this point we have sent the discovers
-        # but it is not guaranteed that we received all responds
+            # udp
+            while not udp_q.empty():
+                udp_msg = udp_q.get()
+                self.handle_udp_message(udp_msg)
+                udp_q.task_done()
 
 
-async def main():
-    game = Game(name='mehdi', ip='127.0.0.1')
-    await game.main()
+# ip = '127.0.0.1'
+ip = f'127.0.0.{sys.argv[1]}'
+other_ip = f'127.0.0.{sys.argv[2]}'
+name = sys.argv[3]
+
+input_q = queue.Queue()
+tcp_q = queue.Queue()
+udp_q = queue.Queue()
+
+
+def game_thread():
+    game = Game(name=name, ip=ip)
+    game.main()
+
+
+def udp_thread():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.bind((ip, UDP_PORT))
+
+        while True:
+            line, addr = sock.recvfrom(1024)
+            line = line.decode('utf-8').strip()
+            udp_q.put(line)
+
+
+def tcp_thread():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((ip, TCP_PORT))
+        sock.listen()
+
+        while True:
+            client, _ = sock.accept()
+            with client:
+                line = b''
+                while True:
+                    chunk = client.recv(1024)
+                    if not chunk:
+                        break
+                    line += chunk
+
+                line = line.decode('utf-8').strip()
+                tcp_q.put(line)
+
+
+def input_thread():
+    while True:
+        command = input('>>> ')
+        input_q.put(command)
+        input_q.join()
+
 
 if __name__ == '__main__':
-    aio.run(main())
+    tcp_th = threading.Thread(target=tcp_thread)
+    udp_th = threading.Thread(target=udp_thread)
+    game_th = threading.Thread(target=game_thread)
+    tcp_th.start()
+    udp_th.start()
+    game_th.start()
 
-# pygame.init()
+    input_thread()
+
+    tcp_th.join()
+    udp_th.join()
+    game_th.join()
+
+# pygame.init()tcp_q = queue.Queue()
 # surface = pygame.display.set_mode((500, 500))
 
 # FPS = pygame.time.Clock()
@@ -269,7 +312,7 @@ if __name__ == '__main__':
 #     pygame.display.update()
 #     FPS.tick(60)
 
-    # start_udp_listen_forever()
-    # start_tcp_listen_forever()
+# start_udp_listen_forever()
+# start_tcp_listen_forever()
 
-    # discover_peers()
+# discover_peers()
