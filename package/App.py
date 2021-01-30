@@ -1,11 +1,14 @@
+from package.scenes.PlayScene import PlayScene
 import pygame
 
 from .scenes import LobbyScene
-from .constants import *
+from .constants import Color, WIDTH, HEIGHT, FPS
+
 
 class App:
     def __init__(self):
-        self.scene = LobbyScene(self)
+        # self.scene = LobbyScene(self)
+        self.scene = PlayScene(self)
 
         # initialize pygame and create window
         pygame.init()
@@ -28,7 +31,7 @@ class App:
             self.scene.update()
 
             # 3 Render
-            self.screen.fill(WHITE)
+            self.screen.fill(Color.WHITE)
             self.scene.draw()
 
             # Done after drawing everything to the screen
