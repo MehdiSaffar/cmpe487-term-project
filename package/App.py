@@ -1,9 +1,12 @@
 from package.scenes.PlayScene import PlayScene
+from package.scenes.SendRequestScene import SendRequestScene
+from package.scenes.LobbyScene import LobbyScene
+
+
 import pygame
 import pygame_menu
 
-from .scenes import LobbyScene
-from .constants import Color, WIDTH, HEIGHT, FPS
+from .constants import Color, SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 
 
 
@@ -12,10 +15,12 @@ class App:
     def __init__(self):
         
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        self.scenes = {'Lobby': LobbyScene(self), 'Play': PlayScene(self)} 
-        self.scene = self.scenes['Lobby']
-        
+        self.player_name = None
+        self.my_name = None
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        #self.scenes = {'Lobby': LobbyScene(self), 'Play': PlayScene(self), 'SendRequest': SendRequestScene(self)} 
+        #self.scene = self.scenes['Lobby']
+        self.scene = LobbyScene(self)
         # self.scene = LobbyScene(self)
         #self.scene = PlayScene(self)
 
@@ -42,7 +47,7 @@ class App:
             self.scene.update()
 
             # 3 Render
-            self.screen.fill(Color.WHITE)
+            self.screen.fill(Color.LIGHT_BLUE)
             self.scene.draw()
 
             # Done after drawing everything to the screen

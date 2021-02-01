@@ -5,7 +5,7 @@ from ..Board import *
 
 class PlayScene:
     def __init__(self, app):
-        print("in play")
+        
         self.app = app
         self.board = Board(self)
         self.current_player = 1

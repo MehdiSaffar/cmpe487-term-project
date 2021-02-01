@@ -4,7 +4,8 @@ import os
 WIDTH = 350
 HEIGHT = 300
 FPS = 60
-
+SCREEN_WIDTH = 500
+SCREEN_HEIGHT = 300
 root_path = Path(os.path.dirname(__file__)).parent
 
 
@@ -16,3 +17,4 @@ class Color:
     WHITE = (255, 255, 255)
     YELLOW = (255, 255, 0)
     DARK_GRAY = (50, 50, 50)
+    LIGHT_BLUE = (106, 159, 181)
