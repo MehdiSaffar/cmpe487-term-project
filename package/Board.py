@@ -40,7 +40,7 @@ class Board:
         _rdi = self.check_right_diag_is_winning(pos, player)
         _ldi = self.check_left_diag_is_winning(pos, player)
 
-        print(f"{_col=} {_row=} {_rdi=} {_ldi=}")
+        #print(f"{_col=} {_row=} {_rdi=} {_ldi=}")
 
         indexes = [
             *_col,
