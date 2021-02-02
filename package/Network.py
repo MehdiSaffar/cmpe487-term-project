@@ -24,7 +24,7 @@ class Network():
             while True:
                 line, addr = await sock_recvfrom(self.loop, sock, 1000)
                 line = line.decode('utf-8').strip()
-                await self.recv_q.async_q.put(('udp', addr, line))
+                await self.recv_q.async_q.put(('udp', (addr[0], self.udp_port), line))
 
     async def _tcp_recv_loop(self, addr):
         async def read_all(sock: socket.socket):
@@ -45,7 +45,7 @@ class Network():
                 with client:
                     line = await read_all(client)
                     line = line.decode('utf-8').strip()
-                    await self.recv_q.async_q.put(('tcp', addr, line))
+                    await self.recv_q.async_q.put(('tcp', (addr[0], self.tcp_port), line))
     
     async def _tcp_send_loop(self):
         addr, data = await self.tcp_send_q.async_q.get()
@@ -75,11 +75,11 @@ class Network():
             await sock_sendto(self.loop, sock, data, addr)
     
     def send(self, packet):
-        type, addr, data = packet
+        type, ip, data = packet
         if type == 'udp':
-            self.udp_send_q.sync_q.put((addr, data))
+            self.udp_send_q.sync_q.put(((ip, self.udp_port), data))
         elif type == 'tcp':
-            self.tcp_send_q.sync_q.put((addr, data))
+            self.tcp_send_q.sync_q.put(((ip, self.tcp_port), data))
         else:
             raise Exception(f'Unknown type {type}')
 
