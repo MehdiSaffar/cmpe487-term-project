@@ -48,16 +48,18 @@ class Network():
                     await self.recv_q.async_q.put(('tcp', (addr[0], self.tcp_port), line))
     
     async def _tcp_send_loop(self):
-        addr, data = await self.tcp_send_q.async_q.get()
-        print('tcp_send', addr, data)
-        await self._tcp_send(addr, data)
-        self.tcp_send_q.async_q.task_done()
+        while True:
+            addr, data = await self.tcp_send_q.async_q.get()
+            print('tcp_send', addr, data)
+            await self._tcp_send(addr, data)
+            self.tcp_send_q.async_q.task_done()
 
     async def _udp_send_loop(self):
-        addr, data = await self.udp_send_q.async_q.get()
-        print('udp_send', addr, data)
-        await self._udp_send(addr, data)
-        self.udp_send_q.async_q.task_done()
+        while True:
+            addr, data = await self.udp_send_q.async_q.get()
+            print('udp_send', addr, data)
+            await self._udp_send(addr, data)
+            self.udp_send_q.async_q.task_done()
 
     async def _tcp_send(self, addr, data):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -69,8 +71,8 @@ class Network():
     async def _udp_send(self, addr, data):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.setblocking(False)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             sock.bind(('', 0))
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
             await sock_sendto(self.loop, sock, data, addr)
     

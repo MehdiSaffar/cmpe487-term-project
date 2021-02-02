@@ -28,8 +28,6 @@ def sock_sendto(loop, sock, data, addr, fut=None, registed=False):
         fut = loop.create_future()
     if registed:
         loop.remove_writer(fd)
-    if not data:
-        return
 
     try:
         n = sock.sendto(data, addr)

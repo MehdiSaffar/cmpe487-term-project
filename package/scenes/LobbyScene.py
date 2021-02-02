@@ -25,8 +25,7 @@ class LobbyScene:
             self.menu.add_button(player[0], lambda: self.handle_choose_player(player[0]))
 
     def discover_players(self):
-        # self.app.network.send(('tcp', '<broadcast>' )
-        pass
+        self.app.network.send(('udp', '<broadcast>', b''))
 
 
     def handle_event(self, event):

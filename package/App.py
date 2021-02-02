@@ -63,6 +63,8 @@ class App:
         while self.is_running:
             # 1 Process input/events
             for event in self.get_events():
+                if event.type == 'udp':
+                    print(event)
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 self.scene.handle_event(event)
