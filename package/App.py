@@ -1,6 +1,7 @@
 from package.scenes.PlayScene import PlayScene
 from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
+from package.scenes.MenuScene import MenuScene
 
 import pygame
 
@@ -16,7 +17,7 @@ class App:
         self.my_name = ''
 
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.scene = LobbyScene(self)
+        self.scene = MenuScene(self)
         
         pygame.display.set_caption("Connect4")
         self.clock = pygame.time.Clock()  # For syncing the FPS
