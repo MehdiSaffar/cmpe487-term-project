@@ -1,7 +1,7 @@
 import numpy as np
 import pygame
 
-from .constants import Color, root_path
+from .constants import Color, root_path, SCREEN_HEIGHT,SCREEN_WIDTH
 from .Piece import Piece
 
 
@@ -14,8 +14,8 @@ class Board:
     def __init__(self, scene):
         self.grid = np.zeros((self.ROWS, self.COLS), np.int8)
         self.board_img = pygame.image.load(str(root_path / 'assets' / 'Connect4Board.png'))
-        self.board_img = pygame.transform.scale(self.board_img, (350, 300))
         self.scene = scene
+        self.board_img = pygame.transform.scale(self.board_img, (SCREEN_WIDTH - 300, SCREEN_HEIGHT))
 
     def get_empty_row(self, col):
         """
@@ -55,7 +55,7 @@ class Board:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            col, row = np.array(pygame.mouse.get_pos()) // 50
+            col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
             empty_row = self.get_empty_row(col)
             if empty_row == -1:  # Do nothing
                 return

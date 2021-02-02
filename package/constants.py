@@ -1,11 +1,13 @@
 from pathlib import Path
 import os
 
-WIDTH = 350
-HEIGHT = 300
+WIDTH = 560
+HEIGHT = 480
 FPS = 60
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 300
+#SCREEN_WIDTH = 500
+SCREEN_WIDTH = 560 + 300
+#SCREEN_HEIGHT = 300
+SCREEN_HEIGHT = 480
 root_path = Path(os.path.dirname(__file__)).parent
 
 

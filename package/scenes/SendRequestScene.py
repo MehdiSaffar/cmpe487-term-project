@@ -17,7 +17,7 @@ class SendRequestScene:
         self.textRect = self.text.get_rect()
         
         # set the center of the rectangular object.
-        self.textRect.center = (WIDTH // 2, HEIGHT // 2)
+        self.textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         
     def handle_event(self, event):
         if(event.type == pygame.MOUSEBUTTONDOWN):

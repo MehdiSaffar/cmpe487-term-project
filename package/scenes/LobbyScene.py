@@ -14,7 +14,7 @@ class LobbyScene:
         mytheme = pygame_menu.themes.Theme(background_color=Color.LIGHT_BLUE, # transparent background
                 title_shadow=True,
                 title_background_color=(4, 47, 126),widget_font_color=Color.WHITE)
-        self.menu = pygame_menu.Menu(300, 500, 'Welcome', theme=mytheme)
+        self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Connect 4', theme=mytheme)
         self.menu.add_text_input('Username : ', default='',onchange=self.get_my_user_name)
         self.menu.add_selector('Choose Player :', players, onchange=self.choose_player)
         self.menu.add_button('Play', self.start_the_game)
