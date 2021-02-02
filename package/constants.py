@@ -5,6 +5,9 @@ WIDTH = 350
 HEIGHT = 300
 FPS = 60
 
+UDP_PORT = 5000
+TCP_PORT = 5000
+
 root_path = Path(os.path.dirname(__file__)).parent
 
 
