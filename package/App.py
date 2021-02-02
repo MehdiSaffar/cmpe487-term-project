@@ -2,42 +2,25 @@ from package.scenes.PlayScene import PlayScene
 from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
 
-
 import pygame
-import pygame_menu
 
 from .constants import Color, SCREEN_WIDTH, SCREEN_HEIGHT, FPS
-import ctypes
-import os
 
 
 class App:
     def __init__(self):
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
         pygame.init()
-        self.player_name = None
-        self.my_name = None
-        user32 = ctypes.windll.user32
-        #self.max_width, self.max_heigth =  user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-        #1280, 720
-        #print(self.max_width, self.max_heigth)
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),pygame.RESIZABLE)
-        #self.scenes = {'Lobby': LobbyScene(self), 'Play': PlayScene(self), 'SendRequest': SendRequestScene(self)} 
-        #self.scene = self.scenes['Lobby']
+        pygame.mixer.init()  # For sound
+
+        self.player_name = ''
+        self.my_name = ''
+
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.scene = LobbyScene(self)
-        # self.scene = LobbyScene(self)
-        #self.scene = PlayScene(self)
-
-        # initialize pygame and create window
-        
-        #pygame.mixer.init()  # For sound
-
         
         pygame.display.set_caption("Connect4")
         self.clock = pygame.time.Clock()  # For syncing the FPS
         self.is_running = True
-
-
 
     def main(self):
         while self.is_running:
