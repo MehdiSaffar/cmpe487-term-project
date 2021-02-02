@@ -1,4 +1,8 @@
 from package.scenes.PlayScene import PlayScene
+from package.scenes.SendRequestScene import SendRequestScene
+from package.scenes.LobbyScene import LobbyScene
+from package.scenes.MenuScene import MenuScene
+
 import pygame
 import asyncio as aio
 import time
@@ -6,18 +10,17 @@ import threading
 import queue
 
 from .scenes import LobbyScene
-from .constants import Color, WIDTH, HEIGHT, FPS
+from .constants import Color, SCREEN_WIDTH, SCREEN_HEIGHT, FPS
 from .Network import Network
 from .NetEvent import NetEvent
 
 
 class App:
     def __init__(self):
-        self.scene = LobbyScene(self)
-        # self.scene = PlayScene(self)
-
         self.init_network()
         self.init_pygame()
+
+        self.scene = MenuScene(self)
 
         while not self.network.is_ready:
             time.sleep(0.01)
@@ -35,7 +38,12 @@ class App:
         pygame.init()
         pygame.mixer.init()  # For sound
 
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.player_name = ''
+        self.my_name = ''
+
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.scene = MenuScene(self)
+        
         pygame.display.set_caption("Connect4")
         self.clock = pygame.time.Clock()  # For syncing the FPS
         self.is_running = True
@@ -65,7 +73,7 @@ class App:
             self.scene.update()
 
             # 3 Render
-            self.screen.fill(Color.WHITE)
+            self.screen.fill(Color.LIGHT_BLUE)
             self.scene.draw()
 
             # Done after drawing everything to the screen

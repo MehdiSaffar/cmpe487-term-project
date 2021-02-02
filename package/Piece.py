@@ -2,7 +2,7 @@ import pygame
 
 
 class Piece:
-    RADIUS = 25
+    RADIUS = 40
     DIAMETER = RADIUS * 2
 
     def __init__(self, color):
