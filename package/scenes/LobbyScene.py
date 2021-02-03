@@ -8,12 +8,8 @@ from ..Packet import discover_packet
 class LobbyScene:
     def __init__(self, app):
         self.app = app
-        self.players = []
-
         self.menu = None
-
-        self.discover_players()
-
+        self.prepare_menu()
     
     def prepare_menu(self):
         menu_theme = pygame_menu.themes.Theme(
@@ -23,11 +19,14 @@ class LobbyScene:
 
         self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Connect 4', theme=menu_theme)
 
-        for player in self.players:
-            self.menu.add_button(player[0], lambda: self.handle_choose_player(player[0]))
+        for player in self.app.players.keys():
+            #print("playerss: ",self.app.players)
+            if(player!=''):
+                self.menu.add_button(player, lambda: self.handle_choose_player(player))
 
-    def discover_players(self):
-        self.app.network.send(('udp', '<broadcast>', discover_packet(self.app.my_name, self.app.network.ip)))
+    #def discover_players(self):
+    #    self.app.players = []
+    #    self.app.network.send(('udp', '<broadcast>', discover_packet(self.app.my_name, self.app.network.ip)))
 
 
     def handle_event(self, event):
@@ -41,7 +40,7 @@ class LobbyScene:
         self.app.scene = SendRequestScene(self.app)
         
     def update(self):
-        pass
+        self.prepare_menu()
 
     def draw(self):
         if self.menu:

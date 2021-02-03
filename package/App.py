@@ -2,12 +2,14 @@ from package.scenes.PlayScene import PlayScene
 from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
 from package.scenes.MenuScene import MenuScene
+from package.Packet import discover_packet, respond_packet
 
 import pygame
 import asyncio as aio
 import time
 import threading
 import queue
+import json
 
 from .scenes import LobbyScene
 from .constants import Color, SCREEN_WIDTH, SCREEN_HEIGHT, FPS
@@ -19,9 +21,8 @@ class App:
     def __init__(self):
         self.init_network()
         self.init_pygame()
-
         self.scene = MenuScene(self)
-
+        self.players = {}
         while not self.network.is_ready:
             time.sleep(0.01)
     
@@ -33,7 +34,10 @@ class App:
 
         self.network_thread = threading.Thread(target=network_main, args=(self.network,), daemon=True)
         self.network_thread.start()
-    
+
+    def discover_players(self):
+        self.network.send(('udp', '<broadcast>', discover_packet(self.my_name, self.network.ip)))
+
     def init_pygame(self):
         pygame.init()
         pygame.mixer.init()  # For sound
@@ -54,17 +58,21 @@ class App:
         while True:
             try:
                 type, addr, data = self.network.recv_q.sync_q.get_nowait()
-                yield NetEvent(type, addr, data)
+                yield NetEvent(type, addr, json.loads(data))
             except queue.Empty:
                 break
-
 
     def main(self):
         while self.is_running:
             # 1 Process input/events
             for event in self.get_events():
                 if event.type == 'udp':
-                    print(event)
+                    if(event.data['type'] == 'discover'):
+                        if(event.data['ip'] != self.network.ip and event.data['name'] not in self.players):
+                            self.players[event.data['name']] = event.data['ip']
+                            self.network.send(('udp', event.data['ip'], respond_packet(self.my_name, self.network.ip)))
+                    elif(event.data['type'] == 'respond'):
+                        self.players[event.data['name']] = event.data['ip']
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 self.scene.handle_event(event)
