@@ -8,6 +8,7 @@ import asyncio as aio
 import time
 import threading
 import queue
+import json
 
 from .scenes import LobbyScene
 from .constants import Color, SCREEN_WIDTH, SCREEN_HEIGHT, FPS
@@ -54,7 +55,7 @@ class App:
         while True:
             try:
                 type, addr, data = self.network.recv_q.sync_q.get_nowait()
-                yield NetEvent(type, addr, data)
+                yield NetEvent(type, addr, json.loads(data))
             except queue.Empty:
                 break
 
