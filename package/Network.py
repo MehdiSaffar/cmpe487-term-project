@@ -122,15 +122,12 @@ class Network():
 
         self.loop = aio.get_running_loop()
 
-        # udp_listen_loop_task = aio.create_task(
-        #     self._udp_recv_loop(('0.0.0.0', self.udp_port)))
-        tcp_listen_loop_task = aio.create_task(
-            self._tcp_recv_loop(('', self.tcp_port)))
+        udp_listen_loop_task = aio.create_task(self._udp_recv_loop(('', self.udp_port)))
+        tcp_listen_loop_task = aio.create_task(self._tcp_recv_loop(('', self.tcp_port)))
 
         tcp_send_loop_task = aio.create_task(self._tcp_send_loop())
         udp_send_loop_task = aio.create_task(self._udp_send_loop())
 
         self.is_ready = True
 
-        # await aio.wait([udp_listen_loop_task, tcp_listen_loop_task, tcp_send_loop_task, udp_send_loop_task])
-        await aio.wait([ tcp_listen_loop_task, tcp_send_loop_task, udp_send_loop_task])
+        await aio.wait([udp_listen_loop_task, tcp_listen_loop_task, tcp_send_loop_task, udp_send_loop_task])
