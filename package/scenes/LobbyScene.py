@@ -3,6 +3,8 @@ from ..scenes.SendRequestScene import SendRequestScene
 import pygame
 import pygame_menu
 
+from ..Packet import discover_packet
+
 class LobbyScene:
     def __init__(self, app):
         self.app = app
@@ -25,7 +27,7 @@ class LobbyScene:
             self.menu.add_button(player[0], lambda: self.handle_choose_player(player[0]))
 
     def discover_players(self):
-        self.app.network.send(('udp', '<broadcast>', b''))
+        self.app.network.send(('udp', '<broadcast>', discover_packet(self.app.my_name, self.app.network.ip)))
 
 
     def handle_event(self, event):
