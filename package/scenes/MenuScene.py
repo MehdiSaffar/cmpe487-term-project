@@ -27,6 +27,7 @@ class MenuScene:
 
     def handle_play(self):
         print("app player name: ",self.app.player_name)
+        self.app.discover_players()
         self.app.scene = LobbyScene(self.app)
 
     def update(self):

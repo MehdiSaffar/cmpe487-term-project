@@ -17,7 +17,6 @@ class Network():
         self.recv_q = None
         self.tcp_send_q = None
         self.udp_send_q = None
-
         self.udp_port = UDP_PORT
         self.tcp_port = TCP_PORT
 
