@@ -2,7 +2,7 @@ from package.scenes.PlayScene import PlayScene
 from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
 from package.scenes.MenuScene import MenuScene
-from package.Packet import discover_packet, respond_packet
+from package.Packet import discover_packet, discover_reply_packet
 
 import pygame
 import asyncio as aio
@@ -70,8 +70,8 @@ class App:
                     if(event.data['type'] == 'discover'):
                         if(event.data['ip'] != self.network.ip and event.data['name'] not in self.players):
                             self.players[event.data['name']] = event.data['ip']
-                            self.network.send(('udp', event.data['ip'], respond_packet(self.my_name, self.network.ip)))
-                    elif(event.data['type'] == 'respond'):
+                            self.network.send(('udp', event.data['ip'], discover_reply_packet(self.my_name, self.network.ip)))
+                    elif(event.data['type'] == 'discover_reply'):
                         self.players[event.data['name']] = event.data['ip']
                 if event.type == pygame.QUIT:
                     self.is_running = False

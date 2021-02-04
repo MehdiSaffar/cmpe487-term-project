@@ -4,9 +4,9 @@ def discover_packet(name, ip):
         'name': name,
         'ip': ip,
     }
-def respond_packet(name, ip):
+def discover_reply_packet(name, ip):
     return {
-        'type': 'respond',
+        'type': 'discover_reply',
         'name': name,
         'ip': ip,
     }

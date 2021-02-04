@@ -1,6 +1,5 @@
 from ..constants import *
-from ..scenes.SendRequestScene import SendRequestScene
-from ..scenes.PlayScene import PlayScene
+import scenes
 
 import pygame
 import pygame_menu
@@ -41,7 +40,7 @@ class LobbyScene:
     
     def handle_accept_invite(self):
         self.app.player_name = self.state['packet']['name']
-        self.app.scene = PlayScene(self.app)
+        self.app.scene = scenes.PlayScene(self.app)
 
     def handle_reject_invite(self):
         self.state = {'type': 'normal'}
@@ -64,7 +63,7 @@ class LobbyScene:
     def handle_choose_player(self, player_name):
         print("player name = ", player_name)
         self.app.player_name = player_name
-        self.app.scene = SendRequestScene(self.app)
+        self.app.scene = scenes.SendRequestScene(self.app)
         
     def update(self):
         self.prepare_menu()

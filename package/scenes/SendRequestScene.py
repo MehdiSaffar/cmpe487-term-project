@@ -1,6 +1,5 @@
 from package.Packet import game_request_packet
-from ..scenes.PlayScene import PlayScene
-from ..scenes.LobbyScene import LobbyScene
+import . as scenes
 import pygame
 from ..constants import *
 
@@ -35,17 +34,14 @@ class SendRequestScene:
     
     def handle_game_reply(self, event):
         if event.data['payload']: # accepts
-            self.app.scene = PlayScene(self.app)
+            self.app.scene = scenes.PlayScene(self.app)
         else:
-            self.app.scene = LobbyScene(self.app)
+            self.app.scene = scenes.LobbyScene(self.app)
 
     def handle_event(self, event):
         if(event.type == 'udp'):
             if (event.data['type'] == 'game_reply'):
                 self.handle_game_reply(event)
-
-        if(event.type == pygame.MOUSEBUTTONDOWN):
-            self.app.scene = PlayScene(self.app)
         
     def update(self):
         pass

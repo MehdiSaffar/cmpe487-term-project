@@ -1,7 +1,6 @@
 
 from ..constants import *
-from ..scenes.SendRequestScene import SendRequestScene
-from ..scenes.LobbyScene import LobbyScene
+import . as scenes
 import pygame
 import pygame_menu
 
@@ -28,7 +27,7 @@ class MenuScene:
     def handle_play(self):
         print("app player name: ",self.app.player_name)
         self.app.discover_players()
-        self.app.scene = LobbyScene(self.app)
+        self.app.scene = scenes.LobbyScene(self.app)
 
     def update(self):
         pass
