@@ -34,6 +34,9 @@ class Network():
 
                 while True:
                     line, addr = await sock_recvfrom(self.loop, sock, 1000)
+                    if addr[0] == self.ip:
+                        continue
+
                     line = line.decode('utf-8').strip()
                     print('_udp_recv_loop', addr, line)
                     await self.recv_q.async_q.put(('udp', (addr[0], self.udp_port), line))

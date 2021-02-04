@@ -52,24 +52,27 @@ class Board:
         indexes = map(tuple, indexes)
         indexes = set(indexes)
         return list(map(np.array, indexes))
+    
+    def try_put_piece(self, col):
+        empty_row = self.get_empty_row(col)
+        if empty_row == -1:  # Do nothing
+            return []
+
+        pos = np.array((empty_row, col))
+        print(f'{pos=}')
+        self.winning_indexes = self.put_piece(pos, self.scene.current_player)
+        return self.winning_indexes
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
-            empty_row = self.get_empty_row(col)
-            if empty_row == -1:  # Do nothing
-                return
-
-            pos = np.array((empty_row, col))
-            print(f'{pos=}')
-            self.winning_indexes = self.put_piece(pos, self.scene.current_player)
+            self.winning_indexes = self.try_put_piece(col)
 
             print(self.winning_indexes)
             if len(self.winning_indexes) > 0:
                 print("player ", self.scene.current_player, " wins!!")
-
-
-            self.scene.toggle_current_player()
+            
+            self.scene.handle_piece_placed(int(col))
 
     def update(self):
         pass

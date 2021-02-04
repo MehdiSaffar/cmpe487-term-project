@@ -1,6 +1,6 @@
 
 from ..constants import *
-import . as scenes
+from .. import scenes
 import pygame
 import pygame_menu
 
@@ -25,9 +25,10 @@ class MenuScene:
         self.menu.update([event])
 
     def handle_play(self):
-        print("app player name: ",self.app.player_name)
-        self.app.discover_players()
-        self.app.scene = scenes.LobbyScene(self.app)
+        if self.app.my_name:
+            print("app player name: ",self.app.player_name)
+            self.app.discover_players()
+            self.app.scene = scenes.LobbyScene(self.app)
 
     def update(self):
         pass

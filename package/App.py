@@ -62,17 +62,22 @@ class App:
             except queue.Empty:
                 break
 
+    def get_other_player_ip(self):
+        return self.players[self.player_name]['ip']
+
     def main(self):
         while self.is_running:
             # 1 Process input/events
             for event in self.get_events():
                 if event.type == 'udp':
-                    if(event.data['type'] == 'discover'):
-                        if(event.data['ip'] != self.network.ip and event.data['name'] not in self.players):
-                            self.players[event.data['name']] = event.data['ip']
-                            self.network.send(('udp', event.data['ip'], discover_reply_packet(self.my_name, self.network.ip)))
-                    elif(event.data['type'] == 'discover_reply'):
-                        self.players[event.data['name']] = event.data['ip']
+                    print(event)
+                    if not isinstance(self.scene, MenuScene):
+                        if event.data['type'] == 'discover' :
+                                if event.data['name'] not in self.players :
+                                    self.players[event.data['name']] = { 'ip': event.data['ip'] }
+                                    self.network.send(('udp', event.data['ip'], discover_reply_packet(self.my_name, self.network.ip)))
+                        elif event.data['type'] == 'discover_reply' :
+                            self.players[event.data['name']] = { 'ip': event.data['ip'] }
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 self.scene.handle_event(event)

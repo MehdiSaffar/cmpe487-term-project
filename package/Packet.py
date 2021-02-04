@@ -23,5 +23,13 @@ def game_reply_packet(name, ip, accept: bool):
         'type': 'game_reply',
         'name': name,
         'ip': ip,
-        'payload': accept,
+        'has_accepted': accept,
+    }
+
+def game_move_packet(name, ip, col):
+    return {
+        'type': 'game_move',
+        'name': name,
+        'ip': ip,
+        'col': col,
     }

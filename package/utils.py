@@ -15,7 +15,6 @@ def sock_recvfrom(loop, sock, n_bytes, fut=None, registed=False):
     except (BlockingIOError, InterruptedError):
         loop.add_reader(fd, sock_recvfrom, loop, sock, n_bytes, fut, True)
     else:
-        print('hello', (data, addr))
         fut.set_result((data, addr))
     return fut
 

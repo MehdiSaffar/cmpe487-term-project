@@ -1,5 +1,5 @@
 from package.Packet import game_request_packet
-import . as scenes
+from .. import scenes
 import pygame
 from ..constants import *
 
@@ -25,21 +25,19 @@ class SendRequestScene:
 
     
     def send_game_request(self):
-        addr = self.get_player_addr()
+        ip = self.app.get_other_player_ip()
         packet = game_request_packet(self.app.my_name, self.app.network.ip)
-        self.app.network.send(('tcp', addr, packet)) 
+        self.app.network.send(('tcp', ip, packet)) 
     
-    def get_player_addr(self):
-        return (self.app.players[self.app.player_name]['ip'], self.app.network.udp_port)
     
     def handle_game_reply(self, event):
-        if event.data['payload']: # accepts
-            self.app.scene = scenes.PlayScene(self.app)
+        if event.data['has_accepted']: # accepts
+            self.app.scene = scenes.PlayScene(self.app, is_my_turn=False)
         else:
             self.app.scene = scenes.LobbyScene(self.app)
 
     def handle_event(self, event):
-        if(event.type == 'udp'):
+        if(event.type == 'tcp'):
             if (event.data['type'] == 'game_reply'):
                 self.handle_game_reply(event)
         
@@ -47,4 +45,4 @@ class SendRequestScene:
         pass
 
     def draw(self):
-        self.app.screen.blit(self.text, self.textRect)
+        self.app.screen.blit(self.text, self.text_rect)
