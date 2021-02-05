@@ -1,13 +1,11 @@
-- udp send discovery
-- udp recv discovery
-- udp send discovery_reply to discovery
-- add player to player list during discovery and discovery_reply
-- display players in LobbyScene
+- wining, losing, draw popup
+- quite basınca goodbye
+- sending score in discovery (everyone keeps their score in their own file) (in file, index by username - username:score)
+- sending score after game finished to update player list
+- show scores in lobby 
+- rematch or return to lobby - sendRequestScene kullan
+- chat in the lobby
+    - show events in lobby (buse won againts mehdi) (game initiater sends the event)
+    - everybody can talk
 
-- send tcp game_request to player from LobbyScene
-- send tcp game_reply (+/-) to game_request
-- "go back" to lobby on -game_reply
-- start game on +game_reply
-- show popup on recv game_request
-
-- send tcp game_move on every move done
+- send gift during the game 
