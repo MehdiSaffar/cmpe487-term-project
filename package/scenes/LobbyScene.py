@@ -47,6 +47,7 @@ class LobbyScene:
         if event.type == 'tcp':
             if event.data['type'] == 'game_request':
                 self.state = {'type': 'invited', 'packet': event.data }
+                print("preparing invite menu")
                 self.prepare_invite_menu()
 
         if self.state['type'] == 'normal':

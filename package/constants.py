@@ -19,4 +19,9 @@ class Color:
     WHITE = (255, 255, 255)
     YELLOW = (255, 255, 0)
     DARK_GRAY = (50, 50, 50)
+    INDIAN_RED = (205, 92, 92)
+    PALE_GREEN = (152, 251, 152)
     LIGHT_BLUE = (106, 159, 181)
+    DARK_GREEN = (0, 100, 0, 255)
+    DARK_RED = (139, 0, 0, 255)
+    

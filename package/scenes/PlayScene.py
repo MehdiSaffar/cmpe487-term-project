@@ -8,11 +8,13 @@ from ..Packet import game_move_packet
 class PlayScene:
     def __init__(self, app, is_my_turn):
         self.app = app
+        pygame.display.set_caption("Connect4")
         self.app.screen = pygame.display.set_mode(
             (SCREEN_WIDTH, SCREEN_HEIGHT))
         self.board = Board(self)
         self.is_my_turn = is_my_turn
         self.is_game_finished = False
+        self.is_draw = False
 
     @property
     def current_player(self):

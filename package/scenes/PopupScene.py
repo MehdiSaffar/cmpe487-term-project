@@ -1,6 +1,7 @@
-from package.Packet import game_request_packet
+from package.Packet import game_request_packet,discover_packet, game_reply_packet
 from .. import scenes
 import pygame
+import pygame_menu
 from ..constants import *
 
 class PopupScene:
@@ -9,32 +10,71 @@ class PopupScene:
         self.player_won = i_won
         self.text = None
         self.text_rect = None
+        self.menu = None
+        self.lobby = scenes.LobbyScene(self.app)
+        self.menu_theme = pygame_menu.themes.Theme(
+                background_color=Color.LIGHT_BLUE, # transparent background
+                title_shadow=True,
+                title_background_color=(4, 47, 126), widget_font_color=Color.WHITE)
         print("Game ended: ",i_won)
         pygame.display.set_caption('Game ended')
+        is_winning_popup = False
         if i_won:
-            self.show_winning_popup()
-        else:
-            self.show_losing_popup()
-      
+            is_winning_popup = True
+        self.show_result_popup(is_winning_popup)
 
-    def show_winning_popup(self):
-        font = pygame.font.SysFont('Courier', 18, bold=True)
-        self.text = font.render(f'Congratulations you won!!!', True, Color.WHITE, Color.LIGHT_BLUE)
-        self.text_rect = self.text.get_rect()
-        self.text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-    
-    def show_losing_popup(self):
-        font = pygame.font.SysFont('Courier', 18, bold=True)
-        self.text = font.render(f'Player {self.app.player_name} has won, game over...', True, Color.WHITE, Color.LIGHT_BLUE)
-        self.text_rect = self.text.get_rect()
-        self.text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    def show_result_popup(self, is_winning):
+        if is_winning:
+            menu_theme = pygame_menu.themes.Theme(
+                background_color=Color.PALE_GREEN,
+                title_font_size=18,
+                title_background_color=Color.DARK_GREEN,
+                widget_font_color=Color.WHITE,
+                title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_SIMPLE)
+            self.menu = pygame_menu.Menu(SCREEN_HEIGHT//2, SCREEN_WIDTH//2, f'Congratulations you won!!!', theme=menu_theme)
+        else:
+            menu_theme = pygame_menu.themes.Theme(
+                        title_font_size=18,
+                        background_color=Color.INDIAN_RED,
+                        title_background_color=Color.DARK_RED,
+                        widget_font_color=Color.WHITE,
+                        title_bar_style=pygame_menu.widgets.MENUBAR_STYLE_SIMPLE)
+            self.menu = pygame_menu.Menu(SCREEN_HEIGHT//2, SCREEN_WIDTH//2, f'Sorry, game over...', theme=menu_theme)
+        self.menu.add_button('Rematch', self.handle_rematch)
+        self.menu.add_button('Return to Lobby', self.handle_return_to_lobby)
+
+    def handle_return_to_lobby(self):
+        self.app.scene = scenes.LobbyScene(self.app)
+
+    def handle_rematch(self):
+        self.app.scene = scenes.SendRequestScene(self.app)
 
     def handle_event(self, event):
-        pass
-                
-        
+        if event.type == 'tcp':
+            if event.data['type'] == 'game_request':
+                self.state = {'type': 'invited', 'packet': event.data }
+                print("preparing invite menu")
+                self.prepare_rematch_invite_menu()
+        self.menu.update([event])
+
+    def prepare_rematch_invite_menu(self):
+        self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Game request', theme=self.menu_theme)
+        player_name = self.state['packet']['name']
+        self.menu.add_label(f"{player_name} wants a rematch")
+        self.menu.add_button('Accept', self.handle_accept_invite)
+        self.menu.add_button('Decline', self.handle_reject_invite)
+
+    def handle_accept_invite(self):
+        self.app.player_name = self.state['packet']['name']
+        self.app.network.send(('tcp', self.state['packet']['ip'], game_reply_packet(self.app.my_name, self.app.network.ip, True)))
+        self.app.scene = scenes.PlayScene(self.app, is_my_turn=True)
+
+    def handle_reject_invite(self):
+        self.app.network.send(('tcp', self.state['packet']['ip'], game_reply_packet(self.app.my_name, self.app.network.ip, False)))
+        self.state = {'type': 'normal'}
+
     def update(self):
         pass
 
     def draw(self):
-        self.app.screen.blit(self.text, self.text_rect)
+        self.menu.draw(self.app.screen)

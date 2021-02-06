@@ -70,12 +70,16 @@ class Board:
         if event.type == pygame.MOUSEBUTTONDOWN:
             col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
             self.winning_indexes = self.try_put_piece(col)
-
+            if len(self.winning_indexes) == 0 and self.check_draw():
+                self.scene.is_draw = True
             print(self.winning_indexes)
             self.scene.handle_piece_placed(int(col))
             #if len(self.winning_indexes) > 0:
             #    print("game finished is winner me: ",self.scene.is_my_turn)
             #    self.scene.is_game_finished = True
+
+    def check_draw(self):
+        return False
 
     def update(self):
         pass
