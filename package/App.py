@@ -2,6 +2,7 @@ from package.scenes.PlayScene import PlayScene
 from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
 from package.scenes.MenuScene import MenuScene
+from package.scenes.PopupScene import PopupScene
 from package.Packet import discover_packet, discover_reply_packet
 
 import pygame
@@ -70,7 +71,7 @@ class App:
             # 1 Process input/events
             for event in self.get_events():
                 if event.type == 'udp':
-                    print(event)
+                    #print(event)
                     if not isinstance(self.scene, MenuScene):
                         if event.data['type'] == 'discover' :
                                 if event.data['name'] not in self.players :

@@ -1,7 +1,7 @@
 from ..constants import *
 from .. import scenes
 from ..Board import *
-
+from ..scenes.PopupScene import PopupScene
 from ..Packet import game_move_packet
 
 
@@ -12,6 +12,7 @@ class PlayScene:
             (SCREEN_WIDTH, SCREEN_HEIGHT))
         self.board = Board(self)
         self.is_my_turn = is_my_turn
+        self.is_game_finished = False
 
     @property
     def current_player(self):
@@ -25,21 +26,27 @@ class PlayScene:
 
     def handle_other_player_game_move(self, packet):
         col = packet['col']
-        self.board.try_put_piece(col)
+        winning_indexes = self.board.try_put_piece(col)
+        if len(winning_indexes)>0:
+            self.is_game_finished = True
+            return
         self.toggle_current_player()
 
     def handle_piece_placed(self, col):
         ip = self.app.get_other_player_ip()
         packet = game_move_packet(self.app.my_name, self.app.network.ip, col)
         self.app.network.send(('tcp', ip, packet))
+        if not self.is_game_finished:
+            self.toggle_current_player()
 
-        self.toggle_current_player()
-
-    def toggle_current_player(self):
+    def toggle_current_player(self):    
         self.is_my_turn = not self.is_my_turn
 
     def update(self):
         self.board.update()
+        if self.is_game_finished == True:
+            print("popup will be shown")
+            self.app.scene = scenes.PopupScene(self.app, i_won=self.is_my_turn)
 
     def draw(self):
         self.board.draw(self.app.screen)

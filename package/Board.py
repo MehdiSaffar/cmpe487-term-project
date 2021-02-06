@@ -31,7 +31,7 @@ class Board:
         row, col = pos
         self.grid[row][col] = player
         winning_pieces = self.check_winning_condition(pos, player)
-        print("Grid: \n", self.grid)
+        #print("Grid: \n", self.grid)
         return winning_pieces
 
     def check_winning_condition(self, pos, player):
@@ -59,8 +59,11 @@ class Board:
             return []
 
         pos = np.array((empty_row, col))
-        print(f'{pos=}')
+        #print(f'{pos=}')
         self.winning_indexes = self.put_piece(pos, self.scene.current_player)
+        if len(self.winning_indexes) > 0:
+                print("game finished is winner me: ",self.scene.is_my_turn)
+                self.scene.is_game_finished = True
         return self.winning_indexes
 
     def handle_event(self, event):
@@ -69,10 +72,10 @@ class Board:
             self.winning_indexes = self.try_put_piece(col)
 
             print(self.winning_indexes)
-            if len(self.winning_indexes) > 0:
-                print("player ", self.scene.current_player, " wins!!")
-            
             self.scene.handle_piece_placed(int(col))
+            #if len(self.winning_indexes) > 0:
+            #    print("game finished is winner me: ",self.scene.is_my_turn)
+            #    self.scene.is_game_finished = True
 
     def update(self):
         pass
