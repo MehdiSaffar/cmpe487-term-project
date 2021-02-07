@@ -66,8 +66,9 @@ class LobbyScene:
                 self.chat.hide()
             if self.state['type'] == 'invited' and event.data['type'] == 'game_cancel_request':
                 if self.state['packet']['name'] == event.data['name']:
-                    self.state = {'type': 'normal'}
-                    self.chat.show()
+                    self.chat.finalize()
+                    self.app.scene = self.app.scene = scenes.PopupScene(self.app, 'request_cancelled', self.state['packet']['name'])
+
         elif event.type == 'udp':
             if event.data['type'] == 'goodbye' and self.state['type'] == 'invited':
                 if event.data['name'] == self.state['packet']['name']:

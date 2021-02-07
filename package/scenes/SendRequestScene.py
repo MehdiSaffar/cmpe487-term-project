@@ -16,7 +16,7 @@ class SendRequestScene:
         self.menu = pygame_menu.Menu(
             SCREEN_HEIGHT, SCREEN_WIDTH, 'Waiting...', theme=menu_theme)
         self.menu.add_label(f'Sending request to {self.app.player_name}...')
-        self.menu.add_button('Cancel Request', self.handle_cancel_game_request)
+        self.menu.add_button('Cancel Request', self.cancel_game_request)
         self.send_game_request()
 
     def send_game_request(self):
@@ -29,29 +29,34 @@ class SendRequestScene:
             self.app.scene = scenes.PlayScene(
                 self.app, is_my_turn=False, my_player_number=PLAYER2)
         else:
-            self.app.scene = scenes.LobbyScene(self.app)
+            self.app.scene = scenes.PopupScene(self.app, 'request_declined', self.app.player_name)
 
     def handle_event(self, event):
         self.menu.update([event])
         if(event.type == 'tcp'):
-            if (event.data['type'] == 'game_reply'):
-                self.handle_game_reply(event)
+            if event.data['type'] == 'game_reply':
+                if event.data['name'] == self.app.player_name:
+                    self.handle_game_reply(event)
         elif event.type == 'udp':
             if event.data['type'] == 'goodbye':
                 if event.data['name'] == self.app.player_name:
                     self.handle_goodbye_from_other_player()
 
+
     def handle_goodbye_from_other_player(self):
         self.app.scene = scenes.PopupScene(
             self.app, 'request_declined', self.app.player_name)
 
-    def handle_cancel_game_request(self):
+    def handle_cancel_game_request(self, event):
+        self.app.scene = scenes.PopupScene(
+            self.app, 'request_declined', self.app.player_name)
+
+    def cancel_game_request(self):
         ip = self.app.get_other_player_ip()
         packet = game_cancel_request_packet(
             self.app.my_name, self.app.network.ip)
         self.app.network.send(('tcp', ip, packet))
-        self.app.scene = scenes.PopupScene(
-            self.app, 'request_declined', self.app.player_name)
+        self.app.scene = scenes.LobbyScene(self.app)
 
     def update(self):
         pass

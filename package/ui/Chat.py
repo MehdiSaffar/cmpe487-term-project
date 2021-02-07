@@ -14,10 +14,6 @@ class Chat:
         self.app = app
 
         self.chatbox = None
-        for i in range(10):
-            self.app.messages.append(
-                (random.choice(['mehdi', 'buse']), random.choice(['hello', 'hi'])))
-
 
         self.ui = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
 
