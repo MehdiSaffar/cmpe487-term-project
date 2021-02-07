@@ -76,10 +76,12 @@ class LobbyScene:
         self.app.scene = scenes.SendRequestScene(self.app)
 
     def update(self):
+        self.chat.update()
         if self.state['type'] == 'normal':
             self.prepare_player_list_menu()
 
     def draw(self):
+        self.chat.draw()
         if self.state['type'] == 'normal':
             self.menu.draw(self.app.screen)
         elif self.state['type'] == 'invited':

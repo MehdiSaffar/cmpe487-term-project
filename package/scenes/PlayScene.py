@@ -50,7 +50,7 @@ class PlayScene:
         self.board.update()
         if self.is_game_finished == True:
             time.sleep(2)
-            self.app.scene = scenes.PopupScene(self.app, player_won=self.winning_player_number)
+            self.app.scene = scenes.PopupScene(self.app, win_state=self.winning_player_number)
 
     def draw(self):
         self.board.draw(self.app.screen)

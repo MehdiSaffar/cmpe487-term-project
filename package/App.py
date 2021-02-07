@@ -3,7 +3,7 @@ from package.scenes.SendRequestScene import SendRequestScene
 from package.scenes.LobbyScene import LobbyScene
 from package.scenes.MenuScene import MenuScene
 from package.scenes.PopupScene import PopupScene
-from package.Packet import discover_packet, discover_reply_packet
+from package.Packet import discover_packet, discover_reply_packet, goodbye_packet
 
 import pygame
 import pygame_gui as pygui
@@ -65,8 +65,6 @@ class App:
         self.clock = pygame.time.Clock()  # For syncing the FPS
         self.is_running = True
 
-        self.ui = pygui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
-
     def get_my_score_from_file(self):
         with open('my_scores.txt') as file:
             for line in file:
@@ -102,7 +100,7 @@ class App:
     def main(self):
         while self.is_running:
             # will make the loop run at the same speed all the time
-            time_delta = self.clock.tick(FPS) / 1000.0
+            self.time_delta = self.clock.tick(FPS) / 1000.0
 
             # 1 Process input/events
             for event in self.get_events():
@@ -123,19 +121,22 @@ class App:
                             self.players[event.data['name']] = {
                                 'ip': event.data['ip'], 'score': event.data['score']}
                 if event.type == pygame.QUIT:
+                    self.network.send(('udp', '<broadcast>', goodbye_packet(self.my_name, self.network.ip)))
                     self.is_running = False
 
                 self.scene.handle_event(event)
-                self.ui.process_events(event)
+
+                # if isinstance(self.scene, LobbyScene):
 
             # 2 Update
-            self.ui.update(time_delta)
+            # if isinstance(self.scene, LobbyScene):
+
             self.scene.update()
 
             # 3 Render
             self.screen.fill(Color.LIGHT_BLUE)
             self.scene.draw()
-            self.ui.draw_ui(self.screen)
+            # if isinstance(self.scene, LobbyScene):
 
             # Done after drawing everything to the screen
             pygame.display.flip()

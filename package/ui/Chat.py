@@ -1,3 +1,4 @@
+import pygame_gui
 from ..constants import *
 
 import random
@@ -17,14 +18,25 @@ class Chat:
             self.app.messages.append(
                 (random.choice(['mehdi', 'buse']), random.choice(['hello', 'hi'])))
 
+
+        self.ui = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
+
         self.prepare_chatbox()
         self.prepare_inputbox()
+
 
     @property
     def is_focused(self):
         return self.inputbox.is_focused
+    
+    def update(self):
+        self.ui.update(self.app.time_delta)
+    
+    def draw(self):
+        self.ui.draw_ui(self.app.screen)
 
     def handle_event(self, event):
+        self.ui.process_events(event)
         if event.type == pygame.USEREVENT:
             if event.user_type == 'ui_text_entry_finished':
                 print('Chat.handle_event', event)
@@ -70,7 +82,7 @@ class Chat:
 
         if self.chatbox is None:
             self.chatbox = UITextBox(text, pygame.Rect(
-                (560, 0), (300, SCREEN_HEIGHT - 60)), self.app.ui)
+                (560, 0), (300, SCREEN_HEIGHT - 60)), self.ui)
         else:
             self.chatbox.html_text = text
             self.chatbox.rebuild()
@@ -91,4 +103,4 @@ class Chat:
 
     def prepare_inputbox(self):
         self.inputbox = UITextEntryLine(pygame.Rect(
-            (560, SCREEN_HEIGHT - 60), (300, 60)), self.app.ui)
+            (560, SCREEN_HEIGHT - 60), (300, 60)), self.ui)

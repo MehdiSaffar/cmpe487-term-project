@@ -16,6 +16,14 @@ def discover_reply_packet(name, ip, score):
     }
 
 
+def goodbye_packet(name, ip):
+    return {
+        'type': 'goodbye',
+        'name': name,
+        'ip': ip,
+    }
+
+
 def game_request_packet(name, ip):
     return {
         'type': 'game_request',
