@@ -24,10 +24,9 @@ class LobbyScene:
     def prepare_player_list_menu(self):
         self.menu = pygame_menu.Menu(
             SCREEN_HEIGHT, SCREEN_WIDTH - 300, 'Connect 4', theme=self.menu_theme, menu_position=(0, 0))
-
         for player in self.app.players.keys():
             self.menu.add_button(
-                player, lambda: self.handle_choose_player(player))
+                f"User: {player}, Score: {self.app.players[player]['score']}", lambda: self.handle_choose_player(player))
 
     def prepare_invite_menu(self):
         self.invite_menu = pygame_menu.Menu(
@@ -46,7 +45,8 @@ class LobbyScene:
             self.app.my_name, self.app.network.ip, True)))
 
         self.chat.finalize()
-        self.app.scene = scenes.PlayScene(self.app, is_my_turn=True)
+        self.app.scene = scenes.PlayScene(
+            self.app, is_my_turn=True, my_player_number=PLAYER1)
 
     def handle_reject_invite(self):
         self.app.network.send(('tcp', self.state['packet']['ip'], game_reply_packet(

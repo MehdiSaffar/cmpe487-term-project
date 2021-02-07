@@ -1,16 +1,20 @@
-def discover_packet(name, ip):
+def discover_packet(name, ip, score):
     return {
         'type': 'discover',
         'name': name,
         'ip': ip,
+        'score': score
     }
 
-def discover_reply_packet(name, ip):
+
+def discover_reply_packet(name, ip, score):
     return {
         'type': 'discover_reply',
         'name': name,
         'ip': ip,
+        'score': score
     }
+
 
 def game_request_packet(name, ip):
     return {
@@ -18,6 +22,7 @@ def game_request_packet(name, ip):
         'name': name,
         'ip': ip,
     }
+
 
 def game_reply_packet(name, ip, accept: bool):
     return {
@@ -27,6 +32,7 @@ def game_reply_packet(name, ip, accept: bool):
         'has_accepted': accept,
     }
 
+
 def game_move_packet(name, ip, col):
     return {
         'type': 'game_move',
@@ -34,6 +40,7 @@ def game_move_packet(name, ip, col):
         'ip': ip,
         'col': col,
     }
+
 
 def chat_message_packet(name, ip, message):
     return {
