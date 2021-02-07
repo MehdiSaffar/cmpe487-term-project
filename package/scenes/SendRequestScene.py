@@ -32,7 +32,7 @@ class SendRequestScene:
     
     def handle_game_reply(self, event):
         if event.data['has_accepted']: # accepts
-            self.app.scene = scenes.PlayScene(self.app, is_my_turn=False)
+            self.app.scene = scenes.PlayScene(self.app, is_my_turn=False, my_player_number=PLAYER2)
         else:
             self.app.scene = scenes.LobbyScene(self.app)
 

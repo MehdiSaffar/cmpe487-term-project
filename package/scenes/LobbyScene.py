@@ -36,7 +36,7 @@ class LobbyScene:
     def handle_accept_invite(self):
         self.app.player_name = self.state['packet']['name']
         self.app.network.send(('tcp', self.state['packet']['ip'], game_reply_packet(self.app.my_name, self.app.network.ip, True)))
-        self.app.scene = scenes.PlayScene(self.app, is_my_turn=True)
+        self.app.scene = scenes.PlayScene(self.app, is_my_turn=True, my_player_number=PLAYER1)
 
     def handle_reject_invite(self):
         self.app.network.send(('tcp', self.state['packet']['ip'], game_reply_packet(self.app.my_name, self.app.network.ip, False)))

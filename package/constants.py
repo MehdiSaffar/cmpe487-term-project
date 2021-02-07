@@ -10,7 +10,8 @@ TCP_PORT = 5000
 
 root_path = Path(os.path.dirname(__file__)).parent
 
-
+PLAYER1 = 1
+PLAYER2 = 2
 class Color:
     BLUE = (0, 0, 255)
     RED = (255, 0, 0)
@@ -24,4 +25,6 @@ class Color:
     LIGHT_BLUE = (106, 159, 181)
     DARK_GREEN = (0, 100, 0, 255)
     DARK_RED = (139, 0, 0, 255)
+    LIGHT_SLATE_GRAY = (119, 136, 153, 255)
+    DARK_GRAY_2 =  (169, 169, 169, 255)
     

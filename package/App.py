@@ -57,12 +57,19 @@ class App:
     def get_my_score_from_file(self):
         with open('my_scores.txt', 'r+') as my_scores_file:
             for line in my_scores_file:
-                (key, val) = line.split()
+                (key, val) = line.split(': ')
                 self.my_all_scores[key] = int(val)
         print(self.my_all_scores)
         if self.my_name in self.my_all_scores.keys():
             self.my_score = int(self.my_all_scores[self.my_name])
             print("my score: ",self.my_score)
+        else:
+            self.my_all_scores[self.my_name] = self.my_score
+
+    def write_my_score_into_file(self):
+        with open("my_scores.txt", "w") as f:
+            for key, val in self.my_all_scores.items():
+                f.write("{}: {}\n".format(key,val))
 
     def get_events(self):
         for event in pygame.event.get():

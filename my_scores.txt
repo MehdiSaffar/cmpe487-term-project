@@ -1,2 +1,2 @@
-Buse 10
-Mehdi 10
+Mehdi: 30
+Buse: 10

@@ -1,15 +1,15 @@
 import numpy as np
 import pygame
+import time
 
-from .constants import Color, root_path, SCREEN_HEIGHT,SCREEN_WIDTH
+from .constants import Color, root_path, SCREEN_HEIGHT,SCREEN_WIDTH,PLAYER1 ,PLAYER2
 from .Piece import Piece
 
 
 class Board:
     ROWS = 6
     COLS = 7
-    PLAYER1 = 1
-    PLAYER2 = 2
+    
 
     def __init__(self, scene):
         self.grid = np.zeros((self.ROWS, self.COLS), np.int8)
@@ -52,7 +52,12 @@ class Board:
         indexes = map(tuple, indexes)
         indexes = set(indexes)
         return list(map(np.array, indexes))
-    
+
+    def is_board_full(self):
+        if 0 in self.grid[0]:
+            return False
+        return True
+        
     def try_put_piece(self, col):
         empty_row = self.get_empty_row(col)
         if empty_row == -1:  # Do nothing
@@ -62,24 +67,19 @@ class Board:
         #print(f'{pos=}')
         self.winning_indexes = self.put_piece(pos, self.scene.current_player)
         if len(self.winning_indexes) > 0:
-                print("game finished is winner me: ",self.scene.is_my_turn)
-                self.scene.is_game_finished = True
+                print("game finished is winner me: ",self.scene.current_player)
+                self.scene.winning_player_number = self.scene.current_player
+                if self.is_board_full():
+                    self.scene.is_game_finished = True
         return self.winning_indexes
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
-            self.winning_indexes = self.try_put_piece(col)
-            if len(self.winning_indexes) == 0 and self.check_draw():
-                self.scene.is_draw = True
-            print(self.winning_indexes)
-            self.scene.handle_piece_placed(int(col))
-            #if len(self.winning_indexes) > 0:
-            #    print("game finished is winner me: ",self.scene.is_my_turn)
-            #    self.scene.is_game_finished = True
-
-    def check_draw(self):
-        return False
+            if self.scene.is_my_turn:
+                col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
+                self.winning_indexes = self.try_put_piece(col)
+                print(self.winning_indexes)
+                self.scene.handle_piece_placed(int(col))
 
     def update(self):
         pass
@@ -94,13 +94,20 @@ class Board:
 
                 # color =
                 if self.at(pos) == 1:
-                    pygame.draw.circle(screen, Color.GREEN if tuple(pos) in list(
-                        map(tuple, self.winning_indexes)) else Color.RED, screen_pos, Piece.RADIUS)
+                    if tuple(pos) in list(map(tuple, self.winning_indexes)):
+                        pygame.draw.circle(screen, Color.GREEN, screen_pos, Piece.RADIUS)
+                        self.scene.is_game_finished = True
+                    else:
+                        pygame.draw.circle(screen, Color.RED, screen_pos, Piece.RADIUS)
                 elif self.at(pos) == 2:
-                    pygame.draw.circle(screen, Color.GREEN if tuple(pos) in list(
-                        map(tuple, self.winning_indexes)) else Color.YELLOW, screen_pos, Piece.RADIUS)
+                    if tuple(pos) in list(map(tuple, self.winning_indexes)):
+                        pygame.draw.circle(screen, Color.GREEN, screen_pos, Piece.RADIUS)
+                        self.scene.is_game_finished = True
+                    else:
+                        pygame.draw.circle(screen, Color.YELLOW, screen_pos, Piece.RADIUS)
 
         screen.blit(self.board_img, (0, 0))
+
 
     def is_within_bounds(self, pos):
         """
