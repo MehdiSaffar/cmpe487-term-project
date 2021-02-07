@@ -16,7 +16,7 @@ class MenuScene:
         self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Connect 4', theme=menu_theme)
         self.menu.add_text_input('Username : ', default=self.app.my_name, onchange=self.handle_username_change)
         self.menu.add_button('Play', self.handle_play)
-        self.menu.add_button('Quit', pygame_menu.events.EXIT)
+        #self.menu.add_button('Quit', pygame_menu.events.EXIT)
 
     def handle_username_change(self, name):
         self.app.my_name = name

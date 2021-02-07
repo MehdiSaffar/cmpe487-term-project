@@ -3,3 +3,5 @@ Buse: 0
 m: 10
 aa: 10
 a: 20
+ssdssd: -10
+dfgrdfhdf: 0

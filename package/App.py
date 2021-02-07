@@ -104,12 +104,22 @@ class App:
 
             # 1 Process input/events
             for event in self.get_events():
+                if event.type == pygame.WINDOWCLOSE:
+                    print("Quiting")
+                    self.network.send(('udp', '<broadcast>', goodbye_packet(self.my_name, self.network.ip)))
+                    self.is_running = False
+                    break
+
                 if event.type == pygame.USEREVENT:
                     print('main', event)
                     # if event.user_type == 'ui_text_entry_finished':
                     #     print('main', event)
 
                 if event.type == 'udp':
+                    if event.data['type'] == 'goodbye':
+                        if event.data['name'] in self.players:
+                            del self.players[event.data['name']]
+
                     if not isinstance(self.scene, MenuScene):
                         if event.data['type'] == 'discover':
                             if event.data['name'] not in self.players:
@@ -120,9 +130,7 @@ class App:
                         elif event.data['type'] == 'discover_reply':
                             self.players[event.data['name']] = {
                                 'ip': event.data['ip'], 'score': event.data['score']}
-                if event.type == pygame.QUIT:
-                    self.network.send(('udp', '<broadcast>', goodbye_packet(self.my_name, self.network.ip)))
-                    self.is_running = False
+                
 
                 self.scene.handle_event(event)
 

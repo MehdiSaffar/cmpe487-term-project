@@ -35,6 +35,13 @@ class SendRequestScene:
         if(event.type == 'tcp'):
             if (event.data['type'] == 'game_reply'):
                 self.handle_game_reply(event)
+        elif event.type == 'udp':
+            if event.data['type'] == 'goodbye':
+                if event.data['name'] == self.app.player_name:
+                    self.handle_goodbye_from_other_player()
+                    
+    def handle_goodbye_from_other_player(self):
+        self.app.scene = scenes.PopupScene(self.app,'player_left')
 
     def handle_cancel_game_request(self):
         ip = self.app.get_other_player_ip()

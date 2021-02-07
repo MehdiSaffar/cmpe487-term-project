@@ -43,7 +43,7 @@ class Network():
                         continue
 
                     line = line.decode('utf-8').strip()
-                    #print('_udp_recv_loop', addr, line)
+                    print('_udp_recv_loop', addr, line)
                     await self.recv_q.async_q.put(('udp', (addr[0], self.udp_port), line))
         except Exception as e:
             print('_udp_recv_loop', e)
@@ -86,7 +86,7 @@ class Network():
         try:
             while True:
                 addr, data = await self.udp_send_q.async_q.get()
-                #print('udp_send', addr, data)
+                print('udp_send', addr, data)
                 await self._udp_send(addr, data)
                 self.udp_send_q.async_q.task_done()
         except Exception as e:

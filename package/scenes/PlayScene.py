@@ -26,7 +26,14 @@ class PlayScene:
         if event.type == 'tcp':
             if event.data['type'] == 'game_move':
                 self.handle_other_player_game_move(event.data)
+        elif event.type == 'udp':
+            if event.data['type'] == 'goodbye':
+                if event.data['name'] == self.app.player_name:
+                    self.handle_goodbye_from_other_player()
         self.board.handle_event(event)
+
+    def handle_goodbye_from_other_player(self):
+        self.app.scene = scenes.PopupScene(self.app,'player_left')
 
     def handle_other_player_game_move(self, packet):
         col = packet['col']

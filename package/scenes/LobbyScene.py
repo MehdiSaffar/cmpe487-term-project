@@ -65,13 +65,23 @@ class LobbyScene:
                 self.prepare_invite_menu()
                 self.chat.hide()
             if self.state['type'] == 'invited' and event.data['type'] == 'game_cancel_request':
-                self.state = {'type': 'normal'}
-                self.chat.show()
+                if self.state['packet']['name'] == event.data['name']:
+                    self.state = {'type': 'normal'}
+                    self.chat.show()
+        elif event.type == 'udp':
+            if event.data['type'] == 'goodbye' and self.state['type'] == 'invited':
+                if event.data['name'] == self.state['packet']['name']:
+                    self.handle_goodbye_from_other_player()    
         if not self.chat.is_focused:
             if self.state['type'] == 'normal':
                 self.menu.update([event])
             elif self.state['type'] == 'invited':
                 self.invite_menu.update([event])
+        
+    def handle_goodbye_from_other_player(self):
+        self.chat.finalize()
+        print("player lefttttt")
+        self.app.scene = scenes.PopupScene(self.app,'player_left')
 
     def handle_choose_player(self, player_name):
         print("player name = ", player_name)
