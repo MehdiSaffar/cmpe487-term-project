@@ -15,7 +15,7 @@ class PopupScene:
         print("Game ended: ", win_state)
         pygame.display.set_caption('Game ended')
 
-        self.show_result_popup(win_state)
+        self.show_result_popup()
 
         if win_state == 'win':
             self.increase_my_score()

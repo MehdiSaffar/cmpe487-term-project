@@ -5,6 +5,7 @@ import fcntl
 import json
 import struct
 import sys
+import netifaces
 
 from .constants import *
 from .utils import sock_recvfrom, sock_sendto
@@ -20,11 +21,14 @@ class Network():
         self.udp_port = UDP_PORT
         self.tcp_port = TCP_PORT
 
-        self.ip = self.get_ip_address(sys.argv[1])
+        self.get_interface_info(sys.argv[1])
+        print('self.ip', self.ip)
+        print('self.broadcast_ip', self.broadcast_ip)
 
-    def get_ip_address(self, interface_name):
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            return str(socket.inet_ntoa(fcntl.ioctl(sock.fileno(), 0x8915, struct.pack('256s', bytes(interface_name[:15], 'utf-8')))[20:24]))
+    def get_interface_info(self, interface_name):
+        interface = netifaces.ifaddresses(interface_name)[netifaces.AF_INET][0]
+        self.ip = interface['addr']
+        self.broadcast_ip = interface['broadcast']
 
     async def _udp_recv_loop(self, addr):
         try:
@@ -34,6 +38,7 @@ class Network():
 
                 while True:
                     line, addr = await sock_recvfrom(self.loop, sock, 1000)
+                    print(addr)
                     if addr[0] == self.ip:
                         continue
 
@@ -98,13 +103,14 @@ class Network():
             print('_tcp_send', e)
 
     async def _udp_send(self, addr, data):
-        try: 
+        try:
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
                 sock.setblocking(False)
                 if addr[0] == '<broadcast>':
                     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-                await sock_sendto(self.loop, sock, json.dumps(data).encode('utf8'), addr)
+                _addr = (self.broadcast_ip if addr[0] == '<broadcast>' else addr[0], addr[1])
+                await sock_sendto(self.loop, sock, json.dumps(data).encode('utf8'), _addr)
         except Exception as e:
             print('_udp_send', e)
 
@@ -124,8 +130,10 @@ class Network():
 
         self.loop = aio.get_running_loop()
 
-        udp_listen_loop_task = aio.create_task(self._udp_recv_loop(('', self.udp_port)))
-        tcp_listen_loop_task = aio.create_task(self._tcp_recv_loop(('', self.tcp_port)))
+        udp_listen_loop_task = aio.create_task(
+            self._udp_recv_loop(('', self.udp_port)))
+        tcp_listen_loop_task = aio.create_task(
+            self._tcp_recv_loop(('', self.tcp_port)))
 
         tcp_send_loop_task = aio.create_task(self._tcp_send_loop())
         udp_send_loop_task = aio.create_task(self._udp_send_loop())

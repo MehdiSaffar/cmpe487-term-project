@@ -30,27 +30,25 @@ class PlayScene:
 
     def handle_other_player_game_move(self, packet):
         col = packet['col']
-        winning_indexes = self.board.try_put_piece(col)
-       # if len(winning_indexes)>0:
-        #    self.is_game_finished = True
-        #    return
+        self.board.try_put_piece(col)
         self.toggle_current_player()
 
     def handle_piece_placed(self, col):
         ip = self.app.get_other_player_ip()
         packet = game_move_packet(self.app.my_name, self.app.network.ip, col)
         self.app.network.send(('tcp', ip, packet))
-        #if not self.is_game_finished:
+        # if not self.is_game_finished:
         self.toggle_current_player()
 
-    def toggle_current_player(self):    
+    def toggle_current_player(self):
         self.is_my_turn = not self.is_my_turn
 
     def update(self):
         self.board.update()
         if self.is_game_finished == True:
-            time.sleep(2)
-            self.app.scene = scenes.PopupScene(self.app, win_state=self.winning_player_number)
+            time.sleep(1)
+            win_state = 'win' if self.winning_player_number == 1 else 'lose' if self.winning_player_number == 2 else 'draw'
+            self.app.scene = scenes.PopupScene(self.app, win_state=win_state)
 
     def draw(self):
         self.board.draw(self.app.screen)
@@ -59,7 +57,7 @@ class PlayScene:
     def add_text(self):
         font = pygame.font.SysFont('Courier', 18, bold=True)
 
-        # create a text suface object,
+        # create a text surface object,
         # on which text is drawn on it.
         if(self.is_my_turn):
             my_name = font.render(
