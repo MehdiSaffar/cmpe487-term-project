@@ -1,26 +1,20 @@
-from package.Packet import game_request_packet
+from package.Packet import game_request_packet, game_cancel_request_packet
 from .. import scenes
 import pygame
+import pygame_menu
 from ..constants import *
 
 class SendRequestScene:
     def __init__(self, app):
         self.app = app
+        menu_theme = pygame_menu.themes.Theme(
+            background_color=Color.LIGHT_BLUE, # transparent background
+            title_shadow=True,
+            title_background_color=(4, 47, 126), widget_font_color=Color.WHITE)
 
-        pygame.display.set_caption('Waiting...')
-        font = pygame.font.SysFont('Courier', 18, bold=True)
-        
-        # create a text suface object,
-        # on which text is drawn on it.
-        self.text = font.render(f'Sending request to {self.app.player_name}...', True, Color.WHITE, Color.LIGHT_BLUE)
-        
-        # create a rectangular object for the
-        # text surface object
-        self.text_rect = self.text.get_rect()
-        
-        # set the center of the rectangular object.
-        self.text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-
+        self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Waiting...', theme=menu_theme)
+        self.menu.add_label(f'Sending request to {self.app.player_name}...')
+        self.menu.add_button('Cancel Request', self.handle_cancel_game_request)
         self.send_game_request()
 
     
@@ -37,12 +31,19 @@ class SendRequestScene:
             self.app.scene = scenes.LobbyScene(self.app)
 
     def handle_event(self, event):
+        self.menu.update([event])
         if(event.type == 'tcp'):
             if (event.data['type'] == 'game_reply'):
                 self.handle_game_reply(event)
-        
+
+    def handle_cancel_game_request(self):
+        ip = self.app.get_other_player_ip()
+        packet = game_cancel_request_packet(self.app.my_name, self.app.network.ip)
+        self.app.network.send(('tcp', ip, packet))
+        self.app.scene = scenes.LobbyScene(self.app)
+
     def update(self):
         pass
 
     def draw(self):
-        self.app.screen.blit(self.text, self.text_rect)
+        self.menu.draw(self.app.screen)

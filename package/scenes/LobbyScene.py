@@ -24,6 +24,8 @@ class LobbyScene:
     def prepare_player_list_menu(self):
         self.menu = pygame_menu.Menu(
             SCREEN_HEIGHT, SCREEN_WIDTH - 300, 'Connect 4', theme=self.menu_theme, menu_position=(0, 0))
+        self.menu.add_label(f'Your Score: {self.app.my_score}')
+        self.menu.add_label('Available Players: ')
         for player in self.app.players.keys():
             self.menu.add_button(
                 f"User: {player}, Score: {self.app.players[player]['score']}", lambda: self.handle_choose_player(player))
@@ -62,7 +64,9 @@ class LobbyScene:
                 self.state = {'type': 'invited', 'packet': event.data}
                 self.prepare_invite_menu()
                 self.chat.hide()
-
+            if self.state['type'] == 'invited' and event.data['type'] == 'game_cancel_request':
+                self.state = {'type': 'normal'}
+                self.chat.show()
         if not self.chat.is_focused:
             if self.state['type'] == 'normal':
                 self.menu.update([event])

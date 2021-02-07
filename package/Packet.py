@@ -40,6 +40,12 @@ def game_reply_packet(name, ip, accept: bool):
         'has_accepted': accept,
     }
 
+def game_cancel_request_packet(name, ip):
+    return {    
+        'type': 'game_cancel_request',
+        'name': name,
+        'ip': ip,
+    }
 
 def game_move_packet(name, ip, col):
     return {

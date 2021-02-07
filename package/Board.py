@@ -77,9 +77,10 @@ class Board:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.scene.is_my_turn:
                 col, row = np.array(pygame.mouse.get_pos()) // Piece.DIAMETER
-                self.winning_indexes = self.try_put_piece(col)
-                print(self.winning_indexes)
-                self.scene.handle_piece_placed(int(col))
+                if self.is_within_bounds((row,col)):
+                    self.winning_indexes = self.try_put_piece(col)
+                    print(self.winning_indexes)
+                    self.scene.handle_piece_placed(int(col))
 
     def update(self):
         pass

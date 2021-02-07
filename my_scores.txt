@@ -1,5 +1,5 @@
 Mehdi: 30
-Buse: 10
+Buse: 0
 m: 10
 aa: 10
 a: 20
