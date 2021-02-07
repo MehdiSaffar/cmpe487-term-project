@@ -1,14 +1,16 @@
-def discover_packet(name, ip):
+def discover_packet(name, ip, score):
     return {
         'type': 'discover',
         'name': name,
         'ip': ip,
+        'score': score
     }
-def discover_reply_packet(name, ip):
+def discover_reply_packet(name, ip, score):
     return {
         'type': 'discover_reply',
         'name': name,
         'ip': ip,
+        'score': score
     }
 
 def game_request_packet(name, ip):

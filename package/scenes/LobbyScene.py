@@ -21,9 +21,8 @@ class LobbyScene:
     
     def prepare_player_list_menu(self):
         self.menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Connect 4', theme=self.menu_theme)
-
         for player in self.app.players.keys():
-            self.menu.add_button(player, lambda: self.handle_choose_player(player))
+            self.menu.add_button('{}: {}'.format(player,self.app.players[player]['score']), lambda: self.handle_choose_player(player))
 
     def prepare_invite_menu(self):
         self.invite_menu = pygame_menu.Menu(SCREEN_HEIGHT, SCREEN_WIDTH, 'Game request', theme=self.menu_theme)

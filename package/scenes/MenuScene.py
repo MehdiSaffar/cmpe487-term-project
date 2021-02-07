@@ -25,11 +25,12 @@ class MenuScene:
         self.menu.update([event])
 
     def handle_play(self):
+        self.app.get_my_score_from_file()
         if self.app.my_name:
             print("app player name: ",self.app.player_name)
             self.app.discover_players()
             self.app.scene = scenes.LobbyScene(self.app)
-
+        
     def update(self):
         pass
 
