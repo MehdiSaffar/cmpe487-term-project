@@ -19,3 +19,8 @@ Mehdi:
 
 
 - send gift during the game 
+
+- score
+- board disina basinca patlamak
+- key gets printed multiple times (optional)
+

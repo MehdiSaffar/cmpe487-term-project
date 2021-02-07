@@ -4,6 +4,7 @@ def discover_packet(name, ip):
         'name': name,
         'ip': ip,
     }
+
 def discover_reply_packet(name, ip):
     return {
         'type': 'discover_reply',
@@ -32,4 +33,12 @@ def game_move_packet(name, ip, col):
         'name': name,
         'ip': ip,
         'col': col,
+    }
+
+def chat_message_packet(name, ip, message):
+    return {
+        'type': 'chat_message',
+        'name': name,
+        'ip': ip,
+        'message': message,
     }
