@@ -6,9 +6,10 @@ from ..constants import *
 
 
 class PopupScene:
-    def __init__(self, app, win_state):
+    def __init__(self, app, win_state, player_name):
         self.app = app
         self.win_state = win_state
+        self.player_name = player_name
 
         self.init_themes()
 
@@ -21,9 +22,6 @@ class PopupScene:
             self.increase_my_score()
         elif win_state == 'lose':
             self.decrease_my_score()
-    
-
-            
 
     def init_themes(self):
         self.request_menu_theme = pygame_menu.themes.Theme(
@@ -66,17 +64,33 @@ class PopupScene:
                 theme=self.lose_menu_theme,
                 title='Sorry, game over...'
             ),
-            'player_left': dict(
+            'game_aborted': dict(
                 theme=self.draw_menu_theme,
                 title="Game aborted"
             ),
+            'request_cancelled': dict(
+                theme=self.draw_menu_theme,
+                title="Request cancelled"
+            ),
+            'request_declined': dict(
+                theme=self.draw_menu_theme,
+                title="Request declined"
+            ),
         }
-        
-        self.menu = pygame_menu.Menu(SCREEN_HEIGHT//2, SCREEN_WIDTH//2, **config[self.win_state])
-        if self.win_state != 'player_left':
+
+        label = {
+            'game_aborted': f'{self.player_name} quit the game',
+            'request_cancelled': f'{self.player_name} cancelled your request',
+            'request_declined': f'{self.player_name} declined your request'
+        }
+
+        self.menu = pygame_menu.Menu(
+            SCREEN_HEIGHT//2, SCREEN_WIDTH//2, **config[self.win_state])
+        if self.win_state in ['win', 'draw', 'lose']:
             self.menu.add_button('Rematch', self.handle_rematch)
         else:
-            self.menu.add_label(f'{self.app.player_name} has left the game')
+            self.menu.add_label(label[self.win_state])
+
         self.menu.add_button('Return to Lobby', self.handle_return_to_lobby)
 
     def handle_return_to_lobby(self):
@@ -87,13 +101,13 @@ class PopupScene:
 
     def increase_my_score(self):
         self.app.my_all_scores[self.app.my_name] += 10
-        self.app.players[self.app.player_name]['score'] -= 10
+        self.app.players[self.player_name]['score'] -= 10
         self.app.write_my_score_into_file()
         print("my score: ", self.app.my_all_scores[self.app.my_name])
 
     def decrease_my_score(self):
         self.app.my_all_scores[self.app.my_name] -= 10
-        self.app.players[self.app.player_name]['score'] += 10
+        self.app.players[self.player_name]['score'] += 10
         self.app.write_my_score_into_file()
         print("my score: ", self.app.my_all_scores[self.app.my_name])
 

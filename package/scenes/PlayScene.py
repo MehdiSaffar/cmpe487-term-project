@@ -33,7 +33,7 @@ class PlayScene:
         self.board.handle_event(event)
 
     def handle_goodbye_from_other_player(self):
-        self.app.scene = scenes.PopupScene(self.app,'player_left')
+        self.app.scene = scenes.PopupScene(self.app, 'game_aborted', self.app.player_name)
 
     def handle_other_player_game_move(self, packet):
         col = packet['col']
@@ -52,10 +52,10 @@ class PlayScene:
 
     def update(self):
         self.board.update()
-        if self.is_game_finished == True:
+        if self.is_game_finished:
             time.sleep(1)
             win_state = 'win' if self.winning_player_number == 1 else 'lose' if self.winning_player_number == 2 else 'draw'
-            self.app.scene = scenes.PopupScene(self.app, win_state=win_state)
+            self.app.scene = scenes.PopupScene(self.app, win_state, self.app.player_name)
 
     def draw(self):
         self.board.draw(self.app.screen)

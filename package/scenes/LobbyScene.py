@@ -81,7 +81,7 @@ class LobbyScene:
     def handle_goodbye_from_other_player(self):
         self.chat.finalize()
         print("player lefttttt")
-        self.app.scene = scenes.PopupScene(self.app,'player_left')
+        self.app.scene = scenes.PopupScene(self.app, 'request_cancelled', self.state['packet']['name'])
 
     def handle_choose_player(self, player_name):
         print("player name = ", player_name)
