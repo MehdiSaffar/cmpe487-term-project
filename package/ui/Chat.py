@@ -20,14 +20,13 @@ class Chat:
         self.prepare_chatbox()
         self.prepare_inputbox()
 
-
     @property
     def is_focused(self):
         return self.inputbox.is_focused
-    
+
     def update(self):
         self.ui.update(self.app.time_delta)
-    
+
     def draw(self):
         self.ui.draw_ui(self.app.screen)
 
@@ -41,13 +40,25 @@ class Chat:
         if event.type == 'tcp':
             if event.data['type'] == 'chat_message':
                 name, message = event.data['name'], event.data['message']
-                self.app.messages.append((name, message))
+                self.app.messages.append(('regular', name, message))
+                self.prepare_chatbox()
+
+        if event.type == 'udp':
+            if event.data['type'] in ['discover']:
+                name = event.data['name']
+                self.app.messages.append(
+                    ('event', None, f'{name} joined the lobby'))
+                self.prepare_chatbox()
+            if event.data['type'] in ['goodbye']:
+                name = event.data['name']
+                self.app.messages.append(
+                    ('event', None, f'{name} left the lobby'))
                 self.prepare_chatbox()
 
     def handle_inputbox_press_enter(self, event):
         print('LobbyScene.handle_inputbox_press_enter event', event)
         text = event.text
-        self.app.messages.append((self.app.my_name, text))
+        self.app.messages.append(('regular', self.app.my_name, text))
         self.prepare_chatbox()
 
         for player in self.app.players.values():
@@ -73,8 +84,12 @@ class Chat:
 
     def prepare_chatbox(self):
         text = ''
-        for auth, txt in self.app.messages:
-            text += f"{auth}: {txt}<br/>"
+
+        for type, auth, txt in self.app.messages:
+            if type == 'regular':
+                text += f"{auth}: {txt}<br/>"
+            elif type == 'event':
+                text += f"""<font color="#FFFFFF">{txt}</font><br/>"""
 
         if self.chatbox is None:
             self.chatbox = UITextBox(text, pygame.Rect(
@@ -83,19 +98,21 @@ class Chat:
             self.chatbox.html_text = text
             self.chatbox.rebuild()
             if self.chatbox.scroll_bar:
-                    scroll_bar = self.chatbox.scroll_bar
-                    scroll_bar.scroll_wheel_down = False
-                    scroll_bar.scroll_position += (250 * 1)
-                    scroll_bar.scroll_position = min(scroll_bar.scroll_position,
-                                                scroll_bar.bottom_limit - scroll_bar.sliding_button.rect.height)
-                    x_pos = scroll_bar.rect.x + scroll_bar.shadow_width + scroll_bar.border_width
-                    y_pos = scroll_bar.scroll_position + scroll_bar.rect.y + scroll_bar.shadow_width + \
-                            scroll_bar.border_width + scroll_bar.button_height
-                    scroll_bar.sliding_button.set_position(pygame.math.Vector2(x_pos, y_pos))
+                scroll_bar = self.chatbox.scroll_bar
+                scroll_bar.scroll_wheel_down = False
+                scroll_bar.scroll_position += (250 * 1)
+                scroll_bar.scroll_position = min(scroll_bar.scroll_position,
+                                                 scroll_bar.bottom_limit - scroll_bar.sliding_button.rect.height)
+                x_pos = scroll_bar.rect.x + scroll_bar.shadow_width + scroll_bar.border_width
+                y_pos = scroll_bar.scroll_position + scroll_bar.rect.y + scroll_bar.shadow_width + \
+                    scroll_bar.border_width + scroll_bar.button_height
+                scroll_bar.sliding_button.set_position(
+                    pygame.math.Vector2(x_pos, y_pos))
 
-                    scroll_bar.start_percentage = scroll_bar.scroll_position / scroll_bar.scrollable_height
-                    if not scroll_bar.has_moved_recently:
-                        scroll_bar.has_moved_recently = True
+                scroll_bar.start_percentage = scroll_bar.scroll_position / \
+                    scroll_bar.scrollable_height
+                if not scroll_bar.has_moved_recently:
+                    scroll_bar.has_moved_recently = True
 
     def prepare_inputbox(self):
         self.inputbox = UITextEntryLine(pygame.Rect(
