@@ -8,7 +8,6 @@ from ..Packet import game_move_packet
 class PlayScene:
     def __init__(self, app, is_my_turn, my_player_number):
         self.app = app
-        pygame.display.set_caption("Connect4")
         self.app.screen = pygame.display.set_mode(
             (SCREEN_WIDTH, SCREEN_HEIGHT))
         self.board = Board(self)

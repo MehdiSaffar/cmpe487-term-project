@@ -14,7 +14,6 @@ class PopupScene:
         self.init_themes()
 
         print("Game ended: ", win_state)
-        pygame.display.set_caption('Game ended')
 
         self.show_result_popup()
 
@@ -101,12 +100,14 @@ class PopupScene:
 
     def increase_my_score(self):
         self.app.my_all_scores[self.app.my_name] += 10
+        self.app.my_score += 10
         self.app.players[self.player_name]['score'] -= 10
         self.app.write_my_score_into_file()
         print("my score: ", self.app.my_all_scores[self.app.my_name])
 
     def decrease_my_score(self):
         self.app.my_all_scores[self.app.my_name] -= 10
+        self.app.my_score -= 10
         self.app.players[self.player_name]['score'] += 10
         self.app.write_my_score_into_file()
         print("my score: ", self.app.my_all_scores[self.app.my_name])

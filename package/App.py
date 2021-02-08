@@ -110,15 +110,27 @@ class App:
                     self.is_running = False
                     break
 
-                if event.type == pygame.USEREVENT:
-                    print('main', event)
-                    # if event.user_type == 'ui_text_entry_finished':
-                    #     print('main', event)
+                if event.type == 'tcp':
+                    if event.data['type'] == 'chat_message':
+                        name, message = event.data['name'], event.data['message']
+                        self.app.messages.append(('regular', name, message))
+                        self.prepare_chatbox()
 
                 if event.type == 'udp':
                     if event.data['type'] == 'goodbye':
+                        name = event.data['name']
+                        self.app.messages.append(
+                            ('event', None, f'{name} left the lobby'))
+                        self.prepare_chatbox()
+
                         if event.data['name'] in self.players:
                             del self.players[event.data['name']]
+
+                    if event.data['type'] in ['discover']:
+                        name = event.data['name']
+                        self.app.messages.append(
+                            ('event', None, f'{name} joined the lobby'))
+                        self.prepare_chatbox()
 
                     if not isinstance(self.scene, MenuScene):
                         if event.data['type'] == 'discover':
@@ -130,21 +142,15 @@ class App:
                         elif event.data['type'] == 'discover_reply':
                             self.players[event.data['name']] = {
                                 'ip': event.data['ip'], 'score': event.data['score']}
-                
 
                 self.scene.handle_event(event)
 
-                # if isinstance(self.scene, LobbyScene):
-
             # 2 Update
-            # if isinstance(self.scene, LobbyScene):
-
             self.scene.update()
 
             # 3 Render
             self.screen.fill(Color.LIGHT_BLUE)
             self.scene.draw()
-            # if isinstance(self.scene, LobbyScene):
 
             # Done after drawing everything to the screen
             pygame.display.flip()

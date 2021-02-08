@@ -1,6 +1,8 @@
 import pygame_gui
 from ..constants import *
 
+from colorhash import ColorHash
+
 import random
 import pygame
 from pygame_gui.elements.ui_text_entry_line import UITextEntryLine
@@ -37,24 +39,6 @@ class Chat:
                 print('Chat.handle_event', event)
                 self.handle_inputbox_press_enter(event)
 
-        if event.type == 'tcp':
-            if event.data['type'] == 'chat_message':
-                name, message = event.data['name'], event.data['message']
-                self.app.messages.append(('regular', name, message))
-                self.prepare_chatbox()
-
-        if event.type == 'udp':
-            if event.data['type'] in ['discover']:
-                name = event.data['name']
-                self.app.messages.append(
-                    ('event', None, f'{name} joined the lobby'))
-                self.prepare_chatbox()
-            if event.data['type'] in ['goodbye']:
-                name = event.data['name']
-                self.app.messages.append(
-                    ('event', None, f'{name} left the lobby'))
-                self.prepare_chatbox()
-
     def handle_inputbox_press_enter(self, event):
         print('LobbyScene.handle_inputbox_press_enter event', event)
         text = event.text
@@ -87,9 +71,9 @@ class Chat:
 
         for type, auth, txt in self.app.messages:
             if type == 'regular':
-                text += f"{auth}: {txt}<br/>"
+                text += f"""<font color="{ColorHash(auth).hex}">{auth}</font>: {txt}<br/>"""
             elif type == 'event':
-                text += f"""<font color="#FFFFFF">{txt}</font><br/>"""
+                text += f"""<font color="#FAA237">{txt}</font><br/>"""
 
         if self.chatbox is None:
             self.chatbox = UITextBox(text, pygame.Rect(
