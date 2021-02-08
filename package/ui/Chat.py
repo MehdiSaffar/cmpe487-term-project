@@ -34,6 +34,8 @@ class Chat:
 
     def handle_event(self, event):
         self.ui.process_events(event)
+        if event.type == 'new_message':
+            self.prepare_chatbox()
         if event.type == pygame.USEREVENT:
             if event.user_type == 'ui_text_entry_finished':
                 print('Chat.handle_event', event)
